@@ -81,14 +81,14 @@ End s.
 
 (** support for heterogeneous relations of arbitrary arity *)
 Section h.
-  Variable b: mon (nat -> bool -> nat+bool -> Prop).
+  Variable b: mon (nat -> bool -> nat+bool -> unit -> Prop).
 
-  Goal gfp b 4 true (inl 5).
+  Goal gfp b 4 true (inl 5) tt.
   Proof.
-    coinduction R H.            (* TOTHINK: a bit slow, why? *)
-    cut (forall c, t b R 3 c (inr c)). admit.
+    coinduction R H.
+    cut (forall c, t b R 3 c (inr c) tt). admit.
     accumulate H'.
-    cut (forall n, t b R n false (inl n)). admit.
+    cut (forall n, t b R n false (inl n) tt). admit.
     accumulate H''.
   Abort.
 End h.
@@ -97,10 +97,7 @@ End h.
 Section h.
   Variable T: nat -> Type.
   Variable f: forall n, T n.
-  (* we need to specify the complete lattice structure in that case,
-     dependent function spaces are not declared by default as complete lattice instances
-   *)
-  Variable b: mon (L:=CompleteLattice_dfun _ _) (forall n, T n -> T (n+n) -> Prop).
+  Variable b: mon (forall n, T n -> T (n+n) -> Prop).
 
   Goal gfp b _ (f 2) (f 4).
   Proof.
