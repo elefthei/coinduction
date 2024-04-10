@@ -71,7 +71,7 @@ end
    it must be of the shape [t ?b ?R], where [t] is the companion
    it is hidden under a few quantifications/implications and conjunctions, e.g.,
    [forall x y, P x y -> t b R u v /\ forall z, t b R p q]
-   using [Tactics.generalize] is an ugly hack in order to give the value [t b R] back to Ltac
+   using [Generalize.generalize] is an ugly hack in order to give the value [t b R] back to Ltac
    TODO: better solution?
  *)
 let find_candidate goal =
@@ -85,7 +85,7 @@ let find_candidate goal =
   in
   let tbr = parse (Tacmach.pf_concl goal) in
   let _,ttbr = Tacmach.pf_type_of goal tbr in
-  Tactics.generalize [Coq.eq_refl ttbr tbr]
+  Generalize.generalize [Coq.eq_refl ttbr tbr]
 
 (* applying one of the [reification.coinduction/accumulate/by_symmetry] lemmas 
    and changing the obtained goal back into a user-friendly looking goal.
@@ -263,7 +263,7 @@ let apply mode goal =
      let (a,b,_,cs,c,x,g) = parse_acc i rname (Tacmach.pf_concl goal) in
      (* here we first revert R and re-introduce it afterwards in order to keep the same name for the candidate.
         we do so in OCaml rather than in Ltac: this makes it possible to avoid the mess with de Bruijn indices *)
-     tclTHEN (Tactics.revert [rname])
+     tclTHEN (Generalize.revert [rname])
        (tclTHEN (typecheck_and_apply (Cnd.accumulate a b cs c x))
           (tclTHEN (Tactics.introduction rname)
              (Tactics.convert_concl ~cast:false ~check:true g DEFAULTcast)
