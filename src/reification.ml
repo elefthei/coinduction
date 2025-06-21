@@ -1,17 +1,17 @@
 (** an OCaml plugin to perform reification and apply the lemmas implementing enhanced coinduction.
     see end-user tactics in [tactics.v]
- *)  
+ *)
 
 open Constr
 open EConstr
 open Proofview
 
 (* raise an error in Coq *)
-let error s = Printf.kprintf (fun s -> CErrors.user_err (Pp.str s)) ("[coinduction] "^^s)
+let error s = Printf.ksprintf (fun s -> CErrors.user_err (Pp.str s)) ("[coinduction] "^^s)
 
 (* access to Coq constants *)
-let get_const s = 
-  lazy (EConstr.of_constr (UnivGen.constr_of_monomorphic_global (Global.env ()) (Coqlib.lib_ref s)))
+let get_const s =
+  lazy (EConstr.of_constr (UnivGen.constr_of_monomorphic_global (Global.env ()) (Rocqlib.lib_ref s)))
 
 (* make an application using a lazy value *)
 let force_app f = fun x -> mkApp (Lazy.force f,x)
@@ -45,7 +45,7 @@ end
 (* Coinduction constants *)
 module Cnd = struct
   let body_       = get_const "coinduction.body"
-  let body        = get_fun_4 "coinduction.body"            
+  let body        = get_fun_4 "coinduction.body"
   let t           = get_fun_3 "coinduction.t"
   let bt          = get_fun_3 "coinduction.bt"
   let gfp         = get_const "coinduction.gfp"
@@ -64,7 +64,7 @@ module Cnd = struct
   let coinduction = get_fun_4 "coinduction.coinduction"
   let accumulate  = get_fun_5 "coinduction.accumulate"
   let by_symmetry = get_fun_4 "coinduction.by_symmetry"
-end 
+end
 
 
 (* finding the bisimulation candidate of an ongoing coinductive proof.
@@ -80,30 +80,30 @@ let find_candidate goal =
     match kind sigma e with
     | Prod(_,_,q) -> parse q
     | App(c,[|p;_|]) when c=Lazy.force Coq.and_ -> parse p
-    | App(c,a) when c=Lazy.force Cnd.body_ -> mkApp(c,Array.sub a 0 4) (* body X L (t b) r ... *) 
+    | App(c,a) when c=Lazy.force Cnd.body_ -> mkApp(c,Array.sub a 0 4) (* body X L (t b) r ... *)
     | _ -> error "did not recognise an ongoing proof by enhanced coinduction"
   in
   let tbr = parse (Tacmach.pf_concl goal) in
   let _,ttbr = Tacmach.pf_type_of goal tbr in
   Generalize.generalize [Coq.eq_refl ttbr tbr]
 
-(* applying one of the [reification.coinduction/accumulate/by_symmetry] lemmas 
+(* applying one of the [reification.coinduction/accumulate/by_symmetry] lemmas
    and changing the obtained goal back into a user-friendly looking goal.
    Depending on the lemma we want to apply
    [mode] is either
    - `Coinduction
    - `Accumulate(n,rname)
    - `By_symmetry
-   In the second case, [n] is the number of hypotheses to exploit (represented as a Coq constr of type [nat]), 
+   In the second case, [n] is the number of hypotheses to exploit (represented as a Coq constr of type [nat]),
    and [rname] is the identifier of the current bisimulation candidate.
  *)
-  
+
 let apply mode goal =
   let env = Tacmach.pf_env goal in
   let sigma = Tacmach.project goal in
 
   (* when [t] is [A -> B -> Prop], returns [ABS A (ABS B PRP)] *)
-  let rec get_arity t = 
+  let rec get_arity t =
     match kind sigma t with
     | Sort _ -> Lazy.force Cnd.ar_prp
     | Prod(i,a,q) -> Cnd.ar_abs a (mkLambda(i,a,get_arity q))
@@ -115,7 +115,7 @@ let apply mode goal =
     else match xs with [x;y] -> [|y;x|]
          | _ -> failwith "by_symmetry: not a binary relation (please report)"
   in
-  
+
   (* key function: parsing/reifying a type [e] of the shape
 
      [forall x y, P x y -> ?REL u v /\ forall z, ?REL p q]
@@ -125,19 +125,19 @@ let apply mode goal =
      - should be [gfp b] for some [b] with `Coinduction
      - should be [t b R] for some [b,R] with `Accumulate
      - should be [bt b R] for some [b,R] with `By_symmetry
-     
+
      such a type [e] is interpreted as a bisimulation candidate
 
      returns a tuple [(a,s,l,b),r,c,x,q)] where
      - [a] is the arity of the considered relations
      - [s] is the type of [r]
-     - [l] is the associated complete lattice 
+     - [l] is the associated complete lattice
      - [b] is the (monotone) function of the coinductive game
      - [r] is a relation of arity [a], the aforementioned [REL]
      - [c] has type [reification.T] and is the skeleton of the bisimulation candidate
      - [x] has type [reification.fT a c] and are the elements related by the bisimulation candidate
      - [q] is a function making it possible to reconstruct a nice type for the goal resulting from the application of the considered lemma.
-     
+
      the key invariant is that [e] should be convertible to [pT a c r x]
 
      in the above example,
@@ -147,8 +147,8 @@ let apply mode goal =
      the OCaml type of [g] is a bit complicated: [bool -> int -> (int -> constr) -> constr]
      intuitively, [g true i REL'] should be [e] where [REL] has beend replaced by [REL']
      the integers are there to deal with de Bruijn indices:
-     - in the `Coinduction case, [REL'] will involved a [mkRel] whose index depends on the depth at wich it gets replaced; [i] is used to record the current depth 
-     - in the other cases, [REL'] will constructed from the context so that integers will just be ignored 
+     - in the `Coinduction case, [REL'] will involved a [mkRel] whose index depends on the depth at wich it gets replaced; [i] is used to record the current depth
+     - in the other cases, [REL'] will constructed from the context so that integers will just be ignored
      the Boolean is only used for the `By_symmetry mode: setting it to false makes it possible to reverse all pairs in the candidate
    *)
   let rec parse e =
@@ -206,7 +206,7 @@ let apply mode goal =
           [|s;l;btb;r;x;y|] ->
            (match kind sigma btb with
             | App(_,[|_;_;b|]) ->
-               let a = get_arity s in           
+               let a = get_arity s in
                ((a,s,l,b),
                 mkApp(c,[|s;l;btb;r|]),
                 Lazy.force Cnd.hol,tuple a [x;y],
@@ -220,7 +220,7 @@ let apply mode goal =
      parsing/reifying a type [e] of the shape
 
      P1 -> ... -> Pn -> P
-     
+
      where P and the Pi's are all of the shape described above for [parse]
 
      returns a tuple [(a,b,r,cs,c,x,g)] where
@@ -233,7 +233,7 @@ let apply mode goal =
        P1 -> ... -> Pn -> P -> P'
        where P' is obtained from P by replacing [r] with [b r]
 
-     the key invariant is that the starting type [e] 
+     the key invariant is that the starting type [e]
      should be convertible to [pTs a cs r (pT a c r x)]
    *)
   let rec parse_acc n rname e =
@@ -268,7 +268,7 @@ let apply mode goal =
           (tclTHEN (Tactics.introduction rname)
              (Tactics.convert_concl ~cast:false ~check:true g DEFAULTcast)
        ))
-     
+
   | `Coinduction ->
      let ((a,s,l,b),_,c,x,g) = parse (Tacmach.pf_concl goal) in
      (* we cannot use the same trick as above since the candidate [R] does not exist beforehand
@@ -276,10 +276,10 @@ let apply mode goal =
       *)
      let tr  j = Cnd.body s l (Cnd.t  s l b) (mkRel (1+j)) in
      let btr j = Cnd.body s l (Cnd.bt s l b) (mkRel (2+j)) in
-     let p' = mkProd (Context.nameR (Names.Id.of_string "R"), s, (mkArrowR (g true 0 tr) (g true 0 btr)))  in
+     let p' = mkProd (EConstr.nameR (Names.Id.of_string "R"), s, (mkArrowR (g true 0 tr) (g true 0 btr)))  in
      tclTHEN (typecheck_and_apply (Cnd.coinduction a c b x))
        (Tactics.convert_concl ~cast:false ~check:true p' DEFAULTcast)
-     
+
   | `By_symmetry ->
      let ((a,s,_,b),r,c,x,g) = parse (Tacmach.pf_concl goal) in
      (* several catches here...
@@ -287,7 +287,7 @@ let apply mode goal =
         1. We would like to do just
         [Tactics.apply (by_symmetry a c x b)]
         unfortunately, this does not seem to trigger typeclass resolution for instantiating the next two arguments of [by_symmetry] (the function s, and a proof of [Sym_from converse b s])
-        Thus we use [eapply] instead, and we perform an explicit call to typeclass resolution for the first generated subgoal. 
+        Thus we use [eapply] instead, and we perform an explicit call to typeclass resolution for the first generated subgoal.
 
         2. The unification problem seems to be more difficult here, and [eapply] fails unless we convert the goal first into its reified form.
         Using [refine (by_symmetry a c x b _ _ _ _)] works in Ltac, but it's painful to provide a term with holes in OCaml - at least I don't know how to do it nicely.
@@ -295,7 +295,7 @@ let apply mode goal =
 
         3. after eapplying [by_symmetry], we get three subgoals and we want to
         - run typeclass resolution on the first one
-        - do a change with nice types on the second and third ones 
+        - do a change with nice types on the second and third ones
         I don't know how to get access to those three goals separately (e.g., the tclTHENLAST tacticial has a different type than the tclTHEN I'm using here...), so that I take look at the resulting goals to recognise who is who.
       *)
      let p = Cnd.pT a c r x in
@@ -318,10 +318,10 @@ let apply mode goal =
                (* here we need to look at the goal anyways, in order to discover the relation [r'] built from the function found by typeclass resolution, and use it to give a nice type *)
                let p' = (g true 0 (fun _ -> r'))  in
                Tactics.convert_concl ~cast:false ~check:true p' DEFAULTcast
-            (* second subgoal (symmetry argument) *)               
-            | _ -> 
+            (* second subgoal (symmetry argument) *)
+            | _ ->
                let p' =
-                 mkProd (Context.nameR (Names.Id.of_string "R"), s,
+                 mkProd (EConstr.nameR (Names.Id.of_string "R"), s,
                          mkArrowR (g true 1 mkRel) (g false 2 mkRel))
                in
                (* Feedback.msg_warning (Printer.pr_leconstr_env env sigma p'); *)
