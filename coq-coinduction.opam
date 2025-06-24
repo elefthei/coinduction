@@ -2,12 +2,12 @@ opam-version: "2.0"
 maintainer: "damien.pous@ens-lyon.fr"
 version: "dev"
 
-homepage: "https://github.com/damien-pous/coinduction"
-dev-repo: "git+https://github.com/damien-pous/coinduction.git"
-bug-reports: "https://github.com/damien-pous/coinduction/issues"
+homepage: "https://github.com/elefthei/coinduction"
+dev-repo: "git+https://github.com/elefthei/coinduction.git"
+bug-reports: "https://github.com/elefthei/coinduction/issues"
 license: "GNU LGPL"
 
-synopsis: "A library for doing proofs by (enhanced) coinduction"
+synopsis: "A library for doing proofs by (enhanced) coinduction (fork)"
 description: """
 Coinductive predicates are greatest fixpoints of monotone functions.
 The `companion' makes it possible to enhance the associated coinduction scheme.
@@ -15,11 +15,19 @@ This library provides a formalisation on enhancements based on the companion, as
 """
 
 build: [
-  [make "-j%{jobs}%" ]
+  "dune" "subst"
+  "dune" "build" "-p" name "-j" jobs
+  "dune" "runtest" "-p" name "-j" jobs
 ]
-install: [make "install"]
+install: [
+  "dune" "install" "-p" name "--create-install-files"
+]
+
 depends: [
-  "coq" {(>= "8.13")}
+  "ocaml" {>= "4.07"}
+  "dune" {>= "2.8"}
+  "coq" {>= "9.0.0" & < "9.1~"}
+  "coq-core" {with-coq}
 ]
 
 tags: [

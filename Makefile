@@ -1,12 +1,9 @@
--include Makefile.coq
+install: build
+	dune build -p coq-coinduction @install
+	dune install
+build:
+	dune build
 
-Makefile.coq: 
-	$(COQBIN)coq_makefile -f _CoqProject -o Makefile.coq
+clean:
+	dune clean
 
-cleanall:: clean
-	rm -f *.d Makefile.coq* depgraph.*
-
-depgraph::
-	coqdep *.v -dumpgraph depgraph.dot 1>/dev/null 2>/dev/null
-	sed -i 's/\[label=\"\([^"]*\)\"]/[label="\1";URL=".\/html\/Coinduction.\1.html"]/g' depgraph.dot
-	dot depgraph.dot -Tsvg -o depgraph.svg

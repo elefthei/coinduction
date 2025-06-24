@@ -1,0 +1,14 @@
+(coq.theory
+ (name Coinduction)
+ (package coq-coinduction)
+ (plugins coq-coinduction.plugin)
+ (flags  -async-proofs-cache force)
+ (theories Stdlib)
+ (modules
+  coinduction
+  lattice
+  rel
+  tactics
+  tests
+ )
+)

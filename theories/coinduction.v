@@ -1,4 +1,4 @@
-(** * Abstract theory of coinduction 
+(** * Abstract theory of coinduction
 
   See
   Coinduction All the Way Up. Damien Pous. In Proc. LICS, 2016.
@@ -8,42 +8,42 @@
 *)
 
 Require Export lattice.
-Require Classical.              (* only for distributivity of the companion *)
+From Stdlib Require Logic.Classical.              (* only for distributivity of the companion *)
 Set Implicit Arguments.
 
 (** * Knaster-Tarski and compatibility  *)
 
 Section s1.
  Context {X} {L: CompleteLattice X}.
- 
+
  Variable b: mon X.
 
  (** ** compatible functions *)
  Notation compat f := (f ° b <= b ° f) (only parsing).
- 
+
  (** compositionality properties of compatibility *)
  Lemma compat_id: compat id.
  Proof. reflexivity. Qed.
- 
+
  Lemma compat_comp f g: compat f -> compat g -> compat (f ° g).
  Proof.
    intros Hf Hg.
    rewrite <-compA, Hg.
    rewrite compA, Hf.
-   now rewrite compA. 
+   now rewrite compA.
  Qed.
 
  Lemma compat_b: compat b.
  Proof. reflexivity. Qed.
 
  Lemma compat_const y: y <= b y -> compat (const y).
- Proof. now intros ??. Qed. 
- 
+ Proof. now intros ??. Qed.
+
  Lemma compat_sup I (P: I -> Prop) (f: I -> mon X):
    (forall i, P i -> compat (f i)) -> compat (sup P f).
  Proof.
    intros H x. simpl. apply sup_spec. intros i Hi.
-   rewrite (H _ Hi x). apply b. eapply eleq_xsup; eauto. 
+   rewrite (H _ Hi x). apply b. eapply eleq_xsup; eauto.
  Qed.
 
  (** ** companion *)
@@ -56,15 +56,15 @@ Section s1.
 
  (** ** Knaster Tarski *)
 
- (** we will show that [t bot] is the greatest fixpoint of [b] (Theorem 3.3), 
+ (** we will show that [t bot] is the greatest fixpoint of [b] (Theorem 3.3),
      whence the following definition *)
- Definition gfp := t bot. 
+ Definition gfp := t bot.
 
  (** [gfp] is a post-fixpoint *)
  Proposition gfp_pfp: gfp <= b gfp.
  Proof.
    transitivity (t (b bot)).
-   now apply t. 
+   now apply t.
    apply compat_t.
  Qed.
  (** and actually the greatest one *)
@@ -85,16 +85,16 @@ Section s1.
  (** more properties about [t] (Lemma 3.2) *)
  Lemma leq_t f: compat f -> f <= t.
  Proof. intro; now apply leq_xsup_id. Qed.
- 
+
  Lemma id_t: id <= t.
  Proof. apply leq_t, compat_id. Qed.
 
  Lemma b_t: b <= t.
  Proof. apply leq_t, compat_b. Qed.
- 
+
  Lemma tt_t: t ° t <= t.
  Proof. apply leq_t, compat_comp; apply compat_t. Qed.
- 
+
  Lemma ft_t f: f <= t -> f ° t <= t.
  Proof. intro H. rewrite H. apply tt_t. Qed.
 
@@ -109,7 +109,7 @@ Section s1.
 
  Lemma fbt_bt {f}: f <= t -> f°bt <= bt.
  Proof. intro H. unfold bt. rewrite H. now rewrite compA, compat_t, <-compA, tt_t. Qed.
-   
+
  (** to sum up: [gfp = t bot = t gfp <= t x] *)
  (** Corollary 3.4 *)
  Corollary t_gfp: t gfp == gfp.
@@ -125,7 +125,7 @@ Section s1.
  Proof. now rewrite <-id_t. Qed.
  Lemma leq_f_tf f: f <= t ° f.
  Proof. now rewrite <-id_t. Qed.
- 
+
 End s1.
 Notation compat b f := (f ° b <= b ° f) (only parsing).
 #[export] Typeclasses Opaque t.
@@ -134,15 +134,15 @@ Global Opaque t.
 Section s2.
  Context {X} {L: CompleteLattice X}.
 
- (** [gfp] is monotone, as a function from [mon X] to [X] 
+ (** [gfp] is monotone, as a function from [mon X] to [X]
      (be careful: [t] is not monotone from [mon X] to [mon X]) *)
  Instance gfp_leq: Proper (leq ==> leq) gfp.
  Proof. intros b b' Hb. apply leq_gfp. rewrite gfp_fp at 1. apply Hb. Qed.
  Instance gfp_weq: Proper (weq ==> weq) gfp := op_leq_weq_1.
- 
+
  Variable b: mon X.
 
- (** [t] is intended to be used as an up-to technique, to play with 
+ (** [t] is intended to be used as an up-to technique, to play with
      [b' = b ° t] rather than just [b].
     The following proposition (Equation 11) shows that we would not get
     anything new by iterating this idea. *)
@@ -166,16 +166,16 @@ Section s2.
 
  (** and we get a unique enhanced coinduction principle *)
  Corollary coinduction x: x <= bt x -> x <= gfp b.
- Proof. intro. rewrite enhanced_gfp. now apply leq_gfp. Qed.  
+ Proof. intro. rewrite enhanced_gfp. now apply leq_gfp. Qed.
 
 End s2.
- 
+
 (** * Compatibility up-to: second order reasoning *)
 
 Section s3.
  Context {X} {L: CompleteLattice X}.
  Variable b: mon X.
- 
+
  (** a function whose post-fixpoints are the compatible functions (Definition 6.1) *)
  Program Definition B: mon (mon X) :=
    {| body g := sup (fun f => f ° b <= b ° g) id |}.
@@ -209,25 +209,25 @@ Section s3.
 
  (** corresponding second-order coinduction principle *)
  Corollary Coinduction f: f ° b <= bT f -> f <= t.
- Proof. unfold bT. rewrite <-B_spec, companion_gfp. apply coinduction. Qed.     
+ Proof. unfold bT. rewrite <-B_spec, companion_gfp. apply coinduction. Qed.
 
- 
+
  (** ** properties of the second order companion (Proposition 6.4) *)
- 
+
  (** the squaring function is compatible for [B] (Lemma 6.3) *)
  Program Definition csquare: mon (mon X) := {| body f := f ° f |}.
  Next Obligation. intros ? ? ?. now apply comp_leq. Qed.
- Lemma compat_csquare: compat B csquare. 
+ Lemma compat_csquare: compat B csquare.
  Proof.
    intro f. apply B_spec. change (B f ° B f ° b <= b ° f ° f).
-   rewrite <-compA, Bfb. 
-   now rewrite compA, Bfb.    
+   rewrite <-compA, Bfb.
+   now rewrite compA, Bfb.
  Qed.
 
  (** so is the constant-to-identity function *)
  Lemma compat_constid: const id ° B <= B ° const id.
  Proof. intro f. now apply B_spec. Qed.
- 
+
  (** thus [T f] is always an idempotent function  *)
  Proposition TT_T f: T f ° T f <= T f.
  Proof. apply (ft_t (leq_t compat_csquare)). Qed.
@@ -249,7 +249,7 @@ Section s3.
  Proof. unfold bT. rewrite (b_T f). apply TT_T. Qed.
  Lemma bt_T f: bt <= T f.
  Proof. rewrite bt_t. apply t_T. Qed.
- 
+
  Lemma gfp_bT f x: gfp b <= bT f x.
  Proof. rewrite <-bt_bT. apply gfp_bt. Qed.
  Lemma gfp_T f x: gfp b <= T f x.
@@ -275,7 +275,7 @@ Section s3.
  Proof.
    apply antisym.
    - intro. apply id_t.
-   - rewrite t_T. apply TT_T. 
+   - rewrite t_T. apply TT_T.
  Qed.
  (** [bt R] is always of the shape [t _] *)
  Lemma bt_tbt: bt == t ° bt.
@@ -285,7 +285,7 @@ Section s3.
    - now apply fbt_bt.
  Qed.
 
- (** we can thus transfer universal properties of [t] to [bt], [T], and [bT] 
+ (** we can thus transfer universal properties of [t] to [bt], [T], and [bT]
      (not used yet)
   *)
  Lemma Pt_PTf (P: X -> Prop) (H: forall R, P (t R)) (H': Proper (weq ==> leq) P): forall f R, P (T f R).
@@ -294,12 +294,12 @@ Section s3.
  Proof. intros R. rewrite bt_tbt. apply H. Qed.
  Lemma Pt_PbTf (P: X -> Prop) (H: forall R, P (t R)) (H': Proper (weq ==> leq) P): forall f R, P (bT f R).
  Proof. intros f R. unfold bT. rewrite T_tT. apply (Pt_Pbt H H' _). Qed.
- (* TOTHINK: 
+ (* TOTHINK:
     in fact, universal properties of [t] are universal properties of elements of [chain.S] below
   *)
 
  (** * Parametric coinduction: the accumulation rule  *)
- 
+
  Program Definition xaccumulate y x: mon X :=
    {| body z := sup (fun _:unit => x <= z) (fun _:unit => y) |}.
  Next Obligation.
@@ -317,11 +317,11 @@ Section s3.
    apply Coinduction. intro z. apply sup_spec. intros _ Hxz.
    rewrite H. apply b. apply Cancel. apply t_T.
    apply cup_spec. split.
-   rewrite Hxz. apply b_T. 
+   rewrite Hxz. apply b_T.
    rewrite E, Hxz. apply Cancel. apply f_Tf. apply b_T.
  Qed.
- 
-End s3. 
+
+End s3.
 #[export] Typeclasses Opaque B T.
 Global Opaque B.
 
@@ -333,10 +333,10 @@ Section symmetry.
  Context {X} {L: CompleteLattice X} {i: mon X}.
  Class Involution := invol: i ° i == id.
  Context {I: Involution}.
- 
+
  Lemma invol' x: i (i x) == x.
  Proof. apply invol. Qed.
- 
+
  Lemma switch x y: i x <= y <-> x <= i y.
  Proof. split; (intro H; apply i in H; now rewrite invol' in H). Qed.
 
@@ -345,8 +345,8 @@ Section symmetry.
 
  Lemma compat_if_fi f: compat i f -> compat f i.
  Proof. intro H; apply Switch. now rewrite compA, <-H, <-compA, invol. Qed.
-  
- (** [b] is assumed to be of the shape [s /\ i s i]  
+
+ (** [b] is assumed to be of the shape [s /\ i s i]
      we use a class to record such a fact, so that the end-user may use syntactically different definitions and yet be able to declare a function as being of this shape.
   *)
 
@@ -362,10 +362,10 @@ Section symmetry.
  (** [i] is compatible  *)
  Lemma compat_invol: compat b i.
  Proof.
-   rewrite sym_from. 
+   rewrite sym_from.
    rewrite o_mcap, 2compA, invol.
    rewrite mcap_o, <-2compA, invol.
-   now rewrite capC. 
+   now rewrite capC.
  Qed.
 
  (** thus below [t]  *)
@@ -376,8 +376,8 @@ Section symmetry.
  Proposition symmetric_pfp x: i x <= x -> x <= s x -> x <= b x.
  Proof.
    intros ix sx. rewrite sym_from. apply cap_spec. split. assumption.
-   apply switch. rewrite ix at 1. apply switch in ix. now rewrite <-ix. 
- Qed. 
+   apply switch. rewrite ix at 1. apply switch in ix. now rewrite <-ix.
+ Qed.
 
  (** reasoning by symmetry at the first level *)
  Proposition by_symmetry x y: i x <= x -> x <= s (t y) -> x <= bt y.
@@ -385,7 +385,7 @@ Section symmetry.
    assert(it: i ° t == t). apply antisym'. apply ft_t, invol_t. apply Switch.
    intros Hx Hxy. rewrite (sym_from (t y)). apply cap_spec. split. assumption.
    apply switch. rewrite Hx, Hxy. now rewrite (it y).
- Qed. 
+ Qed.
 
  (** reasoning by symmetry at the second level *)
  Proposition by_Symmetry f g: compat i f -> f ° b <= s ° (T g) -> f ° b <= bT g.
@@ -395,12 +395,12 @@ Section symmetry.
    rewrite mcap_o. apply cap_spec. split. assumption.
    change (f ° b <= i ° (s ° i ° T g)). apply Switch.
    rewrite compA, Hf.
-   rewrite <-compA, compat_invol. 
+   rewrite <-compA, compat_invol.
    rewrite compA, Hfg, <-2(compA s).
    apply comp_leq. reflexivity.
    assert (iT: i <= T g). rewrite invol_t at 1. apply t_T.
    rewrite iT at 1. setoid_rewrite TT_T.
-   apply Switch. apply fT_T_, iT. 
+   apply Switch. apply fT_T_, iT.
  Qed.
 
 End symmetry.
@@ -416,7 +416,7 @@ Proof. now cbn. Qed.
 
 Section proof_system.
  Context {X} {L: CompleteLattice X}.
- 
+
  Variable b: mon X.
  Notation B := (B b).
  Notation T := (T b).
@@ -428,10 +428,10 @@ Section proof_system.
 
  Lemma rule_done y x: y <= x -> y <= t x.
  Proof. now rewrite <-id_t. Qed.
- 
+
  Lemma rule_upto f y x: f <= t -> y <= f (t x) -> y <= t x.
  Proof. intros Hf Hy. now rewrite <- (ft_t Hf). Qed.
- 
+
  Lemma rule_coind y x: y <= bt (cup x y) -> y <= t x.
  Proof. apply accumulate. Qed.
 
@@ -444,7 +444,7 @@ Module respectful.
 Section s.
  Context {X} {L: CompleteLattice X}.
 
- Variable b: mon X. 
+ Variable b: mon X.
  Notation b' := (cap b id).
  Notation t' := (t b').
  Notation B' := (B b').
@@ -452,26 +452,26 @@ Section s.
  Notation B := (B b).
  Notation T := (T b).
  Notation t := (t b).
- 
+
  Lemma b_b't: b <= b' ° t.
- Proof. 
+ Proof.
    rewrite mcap_o. apply cap_spec. split.
-    now rewrite <-id_t. 
-    apply b_t.  
+    now rewrite <-id_t.
+    apply b_t.
  Qed.
 
  (** Proposition 9.1  *)
  Proposition t_t': t == t'.
  Proof.
-   apply antisym'. 
-    apply leq_t. rewrite cap_l at 1. 
+   apply antisym'.
+    apply leq_t. rewrite cap_l at 1.
     rewrite compat_t. rewrite b_b't at 1. now rewrite <-compA, tt_t.
-   intro E. apply leq_t. rewrite b_b't at 2. 
+   intro E. apply leq_t. rewrite b_b't at 2.
    rewrite compA, compat_t.
-   rewrite E. rewrite <-compA, tt_t. 
-   now rewrite cap_l at 1. 
+   rewrite E. rewrite <-compA, tt_t.
+   now rewrite cap_l at 1.
  Qed.
- 
+
  Proposition bt_b't: b ° t == b' ° t.
  Proof.
    apply antisym.
@@ -484,36 +484,36 @@ Section s.
    intros S HS g.
    assert (tS: t ° S g <= S g). destruct HS as [->| ->].
     now apply fT_T.
-    rewrite t_t'. now apply fT_T. 
+    rewrite t_t'. now apply fT_T.
    assert (St: S g ° t <= S g). destruct HS as [->| ->].
-    apply Tf_T, t_T. 
-    rewrite t_t'. apply Tf_T, t_T. 
+    apply Tf_T, t_T.
+    rewrite t_t'. apply Tf_T, t_T.
    apply from_below. intro f.
    change (f <= B' (S g) <-> f <= B (S g)). rewrite 2B_spec.
    split; intro H.
    rewrite b_b't at 1. rewrite compA, H. rewrite <-compA, St.
-   now rewrite cap_l. 
+   now rewrite cap_l.
    rewrite cap_l at 1. rewrite H. rewrite b_b't at 1.
-   now rewrite <-tS at 2. 
+   now rewrite <-tS at 2.
  Qed.
-                                          
+
  (** Proposition 9.2  *)
  Proposition T'_T: T' == T.
  Proof.
    apply antisym; apply leq_t.
    transitivity (T' ° B ° T'). now setoid_rewrite <-id_t at 3.
    rewrite <-compA. rewrite <-B'S_BS by tauto.
-   rewrite compA. setoid_rewrite compat_t. 
-   now rewrite <-compA, tt_t. 
+   rewrite compA. setoid_rewrite compat_t.
+   now rewrite <-compA, tt_t.
    transitivity (T ° B' ° T). now setoid_rewrite <-id_t at 3.
    rewrite <-compA. rewrite B'S_BS by tauto.
-   rewrite compA. setoid_rewrite compat_t. 
-   now rewrite <-compA, tt_t. 
+   rewrite compA. setoid_rewrite compat_t.
+   now rewrite <-compA, tt_t.
  Qed.
 
  Proposition B'T'_BT: B' ° T' == B ° T.
  Proof. rewrite T'_T. apply B'S_BS. tauto. Qed.
- 
+
  (* note that B≠B' in general *)
 
 End s.
@@ -528,7 +528,7 @@ Global Opaque T.
 Module paco.
 Section s.
 
- Context {X} {L: CompleteLattice X}. 
+ Context {X} {L: CompleteLattice X}.
 
  Program Definition g (b: mon X) x: mon X := {| body y := b (cup x y) |}.
  Next Obligation. intros y z H. now rewrite H. Qed.
@@ -543,25 +543,25 @@ Section s.
  Notation t := (t b).
  Notation bt := (bt b).
  Notation G' := (G bt).
- 
+
  (** Theorem 10.1 *)
  Theorem G_bt: G' == bt.
  Proof.
    apply antisym.
     assert (E: G' <= t).
-     intro x. apply rule_coind. simpl. now rewrite gfp_fp at 1. 
+     intro x. apply rule_coind. simpl. now rewrite gfp_fp at 1.
     intro x. simpl. rewrite gfp_fp. simpl. apply b.
     rewrite (E x). rewrite <-(tt_t b x) at 2. apply t. apply cup_spec. split.
-    apply id_t. reflexivity. 
+    apply id_t. reflexivity.
    intro. simpl. apply leq_gfp. simpl. apply b, t, cup_l.
- Qed. 
+ Qed.
 
  Proposition G_upto: G' == t ° G'. (* i.e., bt = tbt *)
  Proof.
    rewrite G_bt. apply antisym. intro. apply id_t.
    unfold bt. now rewrite compA, compat_t, <-compA, tt_t.
  Qed.
- 
+
  (* note: tb < bt = tbt < t *)
 End s.
 End paco.
@@ -570,7 +570,7 @@ End paco.
 (** * alternative definition of the companion, using Kleene iteration *)
 Module chain.
 Section s.
- Context {X} {L: CompleteLattice X}. 
+ Context {X} {L: CompleteLattice X}.
  Variable b: mon X.
  Notation t := (t b).
  Inductive S: X -> Prop :=
@@ -588,15 +588,15 @@ Section s.
    induction H as [s Hs IH|T HT IH].
    rewrite (compat_t b s). now apply b.
    apply inf_spec. intros s Hs. rewrite <-(IH _ Hs). apply t. now apply leq_infx_id.
- Qed.               
+ Qed.
  Definition S_ x s := S s /\ x <= s.
  Definition t'_ x := inf (S_ x) id.
  Lemma t'_mon: Proper (leq ==> leq) t'_.
  Proof.
    intros x y H. apply inf_spec; intros s [Ss E]. apply leq_infx_id.
-   split. assumption. now rewrite H. 
+   split. assumption. now rewrite H.
  Qed.
- Definition t' := Build_mon t'_mon. 
+ Definition t' := Build_mon t'_mon.
  Lemma id_t' x: x <= t' x.
  Proof. apply inf_spec. now intros s [_ ?]. Qed.
  Lemma St' x: S (t' x).
@@ -604,16 +604,16 @@ Section s.
  Lemma compat_t': t' ° b <= b ° t'.
  Proof.
    intro x. simpl. apply leq_infx_id. split.
-   apply Sb. apply St'. apply b. apply id_t'. 
+   apply Sb. apply St'. apply b. apply id_t'.
  Qed.
- 
+
  Theorem tt': t == t'.
  Proof.
    apply antisym.
    intro x. rewrite (id_t' x) at 1. now rewrite tS by apply St'.
    apply leq_t, compat_t'.
  Qed.
- 
+
  Corollary leq_t' f: f <= t <-> forall s, S s -> f s <= s.
  Proof.
    split.
@@ -622,7 +622,7 @@ Section s.
    rewrite (id_t' x) at 1. rewrite H by apply Sb, St'.
    apply b. rewrite <-tt'. apply t_T.
  Qed.
- 
+
  Lemma St x: S (t x).
  Abort.
  Lemma St x: exists tx, S tx /\ tx == t x.
@@ -635,7 +635,7 @@ Section s.
    apply antisym. apply inf_spec. now intros ? <-. now apply leq_infx.
    (* exists (fun t => exists a (A: T a), match IH a A return Prop with ex_intro _ U _ => U t end). *)
  Abort.
- 
+
  Lemma Sflat s: S s -> s == inf (fun t => S t /\ s <= b t) b.
  Proof.
    intro E. apply antisym. now apply inf_spec; intros t [_ T].
@@ -648,40 +648,40 @@ Section s.
  Qed.
 
  (** * additivity of the companion (assuming classical logic) *)
- 
- Import Classical. 
+
+ Import Classical.
  Lemma choose (P A B: X -> Prop): (forall x, P x -> A x \/ B x) -> (exists x, P x /\ B x) \/ (forall x, P x -> A x).
  Proof.
    intro H. classical_right. intros x Px.
-   destruct (H _ Px). assumption. exfalso; eauto. 
+   destruct (H _ Px). assumption. exfalso; eauto.
  Qed.
 
  Lemma S_linear x y: S x -> S y -> x <= y \/ y <= x.
  Proof.
    intro Sx. revert y. induction Sx as [x Hx IH|T HT IH]; intros y Sy.
    - pose proof (Sflat Sy) as E.
-     set (T t := S t /\ y <= b t) in E. 
-     assert (IH': forall y, T y -> x <= y \/ y <= x). intros t Tt. apply IH, Tt. 
+     set (T t := S t /\ y <= b t) in E.
+     assert (IH': forall y, T y -> x <= y \/ y <= x). intros t Tt. apply IH, Tt.
      destruct (choose _ _ _ IH') as [[s [Ss sx]]|F].
      right. rewrite E, <-sx. now apply leq_infx.
      left. rewrite E. apply inf_spec; intros s Ts. now apply b, F.
-   - assert (IH': forall a, T a -> y <= a \/ a <= y). intros a A. specialize (IH _ A _ Sy). tauto. 
+   - assert (IH': forall a, T a -> y <= a \/ a <= y). intros a A. specialize (IH _ A _ Sy). tauto.
      destruct (choose _ _ _ IH') as [[s [Ss sx]]|F].
      left. rewrite <-sx. now apply leq_infx_id.
-     right. apply inf_spec; intros t Tt. now apply F. 
+     right. apply inf_spec; intros t Tt. now apply F.
  Qed.
 
  Lemma tcup x y: t (cup x y) == cup (t x) (t y).
  Proof.
    apply antisym.
    transitivity (t (cup (t' x) (t' y))).
-   apply t. apply cup_leq; apply id_t'. 
+   apply t. apply cup_leq; apply id_t'.
    destruct (S_linear (St' x) (St' y)) as [xy|yx].
    transitivity (t (t' y)). apply t. apply cup_spec. now split.
-   rewrite <-tt', (tt_t b y). apply cup_r. 
+   rewrite <-tt', (tt_t b y). apply cup_r.
    transitivity (t (t' x)). apply t. apply cup_spec. now split.
    rewrite <-tt', (tt_t b x). apply cup_l.
-   apply cup_spec. split; apply t. apply cup_l. apply cup_r. 
+   apply cup_spec. split; apply t. apply cup_l. apply cup_r.
  Qed.
 
 End s.
