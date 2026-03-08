@@ -24,10 +24,10 @@ install: [
 ]
 
 depends: [
-  "ocaml" {>= "4.07"}
-  "dune" {>= "2.8"}
-  "coq" {>= "9.0.0" & < "9.1~"}
-  "coq-core" {with-coq}
+  "ocaml" {>= "4.14"}
+  "dune" {>= "3.21"}
+  "rocq-prover" {>= "9.0.0"}
+  "rocq-runtime" {>= "9.0.0"}
 ]
 
 tags: [

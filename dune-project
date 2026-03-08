@@ -1,12 +1,12 @@
-(lang dune 3.12)
-(using coq 0.8)
-(name coq-coinduction)
+(lang dune 3.21)
+(using rocq 0.11)
+(name rocq-coinduction)
 
 (package
- (name     coq-coinduction)
+ (name     rocq-coinduction)
  (synopsis "A library for doing proofs by (enhanced) coinduction.")
  (depends
-  (coq (>= 9.0))
-  (dune      (>= 2.8))
+  (rocq-prover (>= 9.0))
+  (dune        (>= 3.21))
  )
 )

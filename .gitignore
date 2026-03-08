@@ -11,7 +11,3 @@ html
 _build
 .merlin
 depgraph.*
-Makefile.coq
-Makefile.coq.conf
-src/reification_g.ml
-src/META.coq-coinduction

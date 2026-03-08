@@ -1,7 +1,7 @@
-(coq.theory
+(rocq.theory
  (name Coinduction)
- (package coq-coinduction)
- (plugins coq-coinduction.plugin)
+ (package rocq-coinduction)
+ (plugins rocq-coinduction.plugin)
  (flags  -async-proofs-cache force)
  (theories Stdlib)
  (modules

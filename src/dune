@@ -1,10 +1,10 @@
-(coq.pp
+(rocq.pp
   (modules reification_g)
 )
 
 (library
- (name coq_coinduction_plugin_lib)
- (public_name coq-coinduction.plugin)
+ (name rocq_coinduction_plugin_lib)
+ (public_name rocq-coinduction.plugin)
 
  (libraries rocq-runtime.engine rocq-runtime.vernac rocq-runtime.plugins.ltac)
  (modes native)

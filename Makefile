@@ -1,8 +1,8 @@
 install: build
-	dune build -p coq-coinduction @install
-	dune install
+	opam exec -- dune build -p rocq-coinduction @install
+	opam exec -- dune install
 build:
-	dune build
+	opam exec -- dune build -j4
 
 clean:
 	dune clean

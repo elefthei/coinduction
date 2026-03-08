@@ -6,10 +6,10 @@ open Constr
 open EConstr
 open Proofview
 
-(* raise an error in Coq *)
+(* raise an error in Rocq *)
 let error s = Printf.ksprintf (fun s -> CErrors.user_err (Pp.str s)) ("[coinduction] "^^s)
 
-(* access to Coq constants *)
+(* access to Rocq constants *)
 let get_const s =
   lazy (EConstr.of_constr (UnivGen.constr_of_monomorphic_global (Global.env ()) (Rocqlib.lib_ref s)))
 
@@ -28,15 +28,15 @@ let typecheck t =
 let typecheck_and_apply t = tclTHEN (typecheck t) (Tactics.apply t)
 let typecheck_and_eapply t = tclTHEN (typecheck t) (Tactics.eapply t)
 
-(* creating OCaml functions from Coq ones *)
+(* creating OCaml functions from Rocq ones *)
 let get_fun_1 s = let v = get_const s in fun x -> force_app v [|x|]
 let get_fun_2 s = let v = get_const s in fun x y -> force_app v [|x;y|]
 let get_fun_3 s = let v = get_const s in fun x y z -> force_app v [|x;y;z|]
 let get_fun_4 s = let v = get_const s in fun x y z t -> force_app v [|x;y;z;t|]
 let get_fun_5 s = let v = get_const s in fun x y z t u -> force_app v [|x;y;z;t;u|]
 
-(* Coq constants *)
-module Coq = struct
+(* Rocq constants *)
+module Rocq = struct
   let eq_refl = get_fun_2 "core.eq.refl"
   let and_    = get_const "core.and.type"
   let pair    = get_fun_4 "core.prod.intro"
@@ -79,13 +79,13 @@ let find_candidate goal =
   let rec parse e =
     match kind sigma e with
     | Prod(_,_,q) -> parse q
-    | App(c,[|p;_|]) when c=Lazy.force Coq.and_ -> parse p
+    | App(c,[|p;_|]) when c=Lazy.force Rocq.and_ -> parse p
     | App(c,a) when c=Lazy.force Cnd.body_ -> mkApp(c,Array.sub a 0 4) (* body X L (t b) r ... *)
     | _ -> error "did not recognise an ongoing proof by enhanced coinduction"
   in
   let tbr = parse (Tacmach.pf_concl goal) in
   let _,ttbr = Tacmach.pf_type_of goal tbr in
-  Generalize.generalize [Coq.eq_refl ttbr tbr]
+  Generalize.generalize [Rocq.eq_refl ttbr tbr]
 
 (* applying one of the [reification.coinduction/accumulate/by_symmetry] lemmas
    and changing the obtained goal back into a user-friendly looking goal.
@@ -94,7 +94,7 @@ let find_candidate goal =
    - `Coinduction
    - `Accumulate(n,rname)
    - `By_symmetry
-   In the second case, [n] is the number of hypotheses to exploit (represented as a Coq constr of type [nat]),
+   In the second case, [n] is the number of hypotheses to exploit (represented as a Rocq constr of type [nat]),
    and [rname] is the identifier of the current bisimulation candidate.
  *)
 
@@ -161,7 +161,7 @@ let apply mode goal =
         mkLambda(i,w,x),
         (fun v l r -> mkProd(i,w,g v (l+1) r)))
     | App(c,[|p1;p2|])          (* conjunction *)
-         when c=Lazy.force Coq.and_ ->
+         when c=Lazy.force Rocq.and_ ->
        let (aslb,r, c1,x1,g1) = parse p1 in
        let (_,   r',c2,x2,g2) = parse p2 in
        let (a,_,_,_) = aslb in
@@ -170,7 +170,7 @@ let apply mode goal =
        (aslb,
         r,
         Cnd.cnj c1 c2,
-        Coq.pair (Cnd.fT a c1) (Cnd.fT a c2) x1 x2,
+        Rocq.pair (Cnd.fT a c1) (Cnd.fT a c2) x1 x2,
        (fun v l r -> mkApp(c,[|g1 v l r;g2 v l r|])))
     | App(c,slb_)      (* gfp s l b ... *)
          when mode=`Coinduction &&

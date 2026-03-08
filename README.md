@@ -12,7 +12,7 @@ It contains:
  - powerful symmetry arguments
  - compatibility and respectfulness
 
-Examples on how to use the library may be found in the associated coq-coinduction-examples package:
+Examples on how to use the library may be found in the associated rocq-coinduction-examples package:
  - a formalisation of Hur et al's toy example on divergence
  - a formalisation of Rutten's stream calculus
  - a formalisation of Milner's calculus of communicating systems (CCS)
@@ -28,11 +28,11 @@ Examples on how to use the library may be found in the associated coq-coinductio
 
 - Author(s):
   - Damien Pous (initial)
-- Coq-community maintainer(s):
+- Rocq-community maintainer(s):
   - Damien Pous ([**@damien-pous**](https://github.com/damien-pous))
 - License: [GNU LGPL3+]
-- Compatible Coq versions: 8.13 or later
-- Coq namespace: `Coinduction`
+- Compatible Rocq versions: 9.0 or later
+- Rocq namespace: `Coinduction`
 - Related publication(s):
   - [Coinduction All the Way Up](https://hal.archives-ouvertes.fr/hal-01259622) doi:[10.1145/2933575.2934564](http://dx.doi.org/10.1145/2933575.2934564)
 
@@ -42,8 +42,7 @@ The easiest way to install the latest released version of Coinduction
 is via [OPAM](https://opam.ocaml.org/doc/Install.html):
 
 ```shell
-opam repo add coq-released https://coq.inria.fr/opam/released
-opam install coq-coinduction
+opam install rocq-coinduction
 ```
 
 To instead build and install manually, do:

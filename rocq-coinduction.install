@@ -1,0 +1,47 @@
+lib: [
+  "_build/install/default/lib/rocq-coinduction/META"
+  "_build/install/default/lib/rocq-coinduction/dune-package"
+  "_build/install/default/lib/rocq-coinduction/opam"
+  "_build/install/default/lib/rocq-coinduction/plugin/reification.ml" {"plugin/reification.ml"}
+  "_build/install/default/lib/rocq-coinduction/plugin/reification.mli" {"plugin/reification.mli"}
+  "_build/install/default/lib/rocq-coinduction/plugin/reification_g.ml" {"plugin/reification_g.ml"}
+  "_build/install/default/lib/rocq-coinduction/plugin/reification_g.mli" {"plugin/reification_g.mli"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib.a" {"plugin/rocq_coinduction_plugin_lib.a"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib.cmi" {"plugin/rocq_coinduction_plugin_lib.cmi"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib.cmt" {"plugin/rocq_coinduction_plugin_lib.cmt"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib.cmx" {"plugin/rocq_coinduction_plugin_lib.cmx"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib.cmxa" {"plugin/rocq_coinduction_plugin_lib.cmxa"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib.ml" {"plugin/rocq_coinduction_plugin_lib.ml"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification.cmi" {"plugin/rocq_coinduction_plugin_lib__Reification.cmi"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification.cmt" {"plugin/rocq_coinduction_plugin_lib__Reification.cmt"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification.cmti" {"plugin/rocq_coinduction_plugin_lib__Reification.cmti"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification.cmx" {"plugin/rocq_coinduction_plugin_lib__Reification.cmx"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification_g.cmi" {"plugin/rocq_coinduction_plugin_lib__Reification_g.cmi"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification_g.cmt" {"plugin/rocq_coinduction_plugin_lib__Reification_g.cmt"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification_g.cmti" {"plugin/rocq_coinduction_plugin_lib__Reification_g.cmti"}
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib__Reification_g.cmx" {"plugin/rocq_coinduction_plugin_lib__Reification_g.cmx"}
+]
+lib_root: [
+  "_build/install/default/lib/coq/user-contrib/Coinduction/coinduction.glob" {"coq/user-contrib/Coinduction/coinduction.glob"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/coinduction.v" {"coq/user-contrib/Coinduction/coinduction.v"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/coinduction.vo" {"coq/user-contrib/Coinduction/coinduction.vo"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/lattice.glob" {"coq/user-contrib/Coinduction/lattice.glob"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/lattice.v" {"coq/user-contrib/Coinduction/lattice.v"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/lattice.vo" {"coq/user-contrib/Coinduction/lattice.vo"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/rel.glob" {"coq/user-contrib/Coinduction/rel.glob"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/rel.v" {"coq/user-contrib/Coinduction/rel.v"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/rel.vo" {"coq/user-contrib/Coinduction/rel.vo"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/tactics.glob" {"coq/user-contrib/Coinduction/tactics.glob"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/tactics.v" {"coq/user-contrib/Coinduction/tactics.v"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/tactics.vo" {"coq/user-contrib/Coinduction/tactics.vo"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/tests.glob" {"coq/user-contrib/Coinduction/tests.glob"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/tests.v" {"coq/user-contrib/Coinduction/tests.v"}
+  "_build/install/default/lib/coq/user-contrib/Coinduction/tests.vo" {"coq/user-contrib/Coinduction/tests.vo"}
+]
+libexec: [
+  "_build/install/default/lib/rocq-coinduction/plugin/rocq_coinduction_plugin_lib.cmxs" {"plugin/rocq_coinduction_plugin_lib.cmxs"}
+]
+doc: [
+  "_build/install/default/doc/rocq-coinduction/CHANGELOG"
+  "_build/install/default/doc/rocq-coinduction/README.md"
+]
