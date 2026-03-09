@@ -15,12 +15,12 @@ This library provides a formalisation on enhancements based on the companion, as
 """
 
 build: [
-  "dune" "subst"
-  "dune" "build" "-p" name "-j" jobs
-  "dune" "runtest" "-p" name "-j" jobs
+  ["dune" "subst"] {dev}
+  ["dune" "build" "-p" name "-j" jobs]
+  ["dune" "runtest" "-p" name "-j" jobs] {with-test}
 ]
 install: [
-  "dune" "install" "-p" name "--create-install-files"
+  ["dune" "install" "-p" name "--create-install-files"]
 ]
 
 depends: [
